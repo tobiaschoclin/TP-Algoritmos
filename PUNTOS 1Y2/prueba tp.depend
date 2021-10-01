@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1633094128 source:c:\users\tobic\onedrive\escritorio\utn\algoritmos\proyectos\archivos\prueba tp\main.cpp
+	<iostream>
+	<stdio.h>
+	<conio.h>
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+
