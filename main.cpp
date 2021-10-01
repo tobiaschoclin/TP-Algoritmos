@@ -1,6 +1,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <conio.h>
+#ifdef _WIN32
+#include<windows.h>
+#endif
 using namespace std;
 
 
@@ -22,10 +25,18 @@ int UsuarioID;
 int NroArticulo;
 };
 
+void limpiar_pantalla()
+{
+  #ifdef _WIN32
+    system("cls");
+  #else
+    system("clear");
+  #endif
+}
 void Crear_Archivo()
 {
     FILE *archivo;
-    archivo = fopen("clientes.bin", "wb");
+    archivo = fopen("clientes.bin", "a");
     if(archivo == NULL)
         cout << "Error";
     fclose(archivo);
@@ -52,6 +63,7 @@ void cargarUsuario(Usuario &u)
 
 void mostrarUsuario(Usuario u)
 {
+    cout << "******************************** "<<endl;
     cout << "ID: " << u.UsuarioID << endl;
     cout << "Fecha creacion: " << u.FechaCreacion << endl;
     cout << "Activo: ";
@@ -61,6 +73,8 @@ void mostrarUsuario(Usuario u)
         cout << "No" << endl;
     cout << "Total compras: " << u.TotalImporteCompras << endl;
     cout << "Correo: " << u.eMail << endl;
+    cout << "******************************** "<<endl;
+
 }
 
 int busquedaID(Usuario u[], int tam, int id)
@@ -84,6 +98,15 @@ int busquedaMail(Usuario u[], int tam, string mail)
     }
     return buscado;
 }
+int borrarID (Usuario u[], int tam, int idborr)
+{
+
+
+
+    }
+
+
+
 
 int main()
 {
@@ -92,11 +115,12 @@ int main()
     Usuario usuar[100];
     int pos = 0;
     int tam = 0;
-    int idbusq, menubusq;
+    int idbusq, menubusq,idborr,mailborr;
     string mailbusq;
     char opcion;
     do
     {
+
         cout << "Elija una opcion" << endl;
         cout << "1 - Mostrar los clientes del archivo Clientes.bin." << endl;
         cout << "2 - Cargar un nuevo cliente." << endl;
@@ -111,6 +135,7 @@ int main()
         cout << "11 - Cargar datos en Clientes.bin." <<endl;
 
         cout << "esc - Salir" << endl;
+
         do
         {
             opcion= getch();
@@ -119,8 +144,9 @@ int main()
         switch(opcion)
         {
             case '1':
+        limpiar_pantalla();
         // LISTAR EL ARCHIVO CON LOS ALUMNOS
-        clientes = fopen("clientes.bin", "rb");
+        clientes = fopen("clientes.bin", "r+b");
         if(clientes != NULL)
             {
                 while(fread(&usuar, sizeof(Usuario), 1, clientes))
@@ -131,9 +157,12 @@ int main()
                             }
                             fclose(clientes);
                     }
-                    } break;
+                    }
+
+                    break;
 
             case '2':
+                limpiar_pantalla();
                 cargarUsuario(usuar[pos]);
                 tam++;
                 pos++;
@@ -143,10 +172,38 @@ int main()
                         fwrite(&usuar, sizeof(Usuario), 1, clientes);
                         fclose(clientes);
                     }
-
+                limpiar_pantalla();
                 break;
             case '3':
+                clientes = fopen("clientes.bin", "rb");
+                        if(clientes != NULL)
+                            {
+                                while(fread(&usuar, sizeof(Usuario), 1, clientes))
+                                {
+                                    cout << "1- Borrar por ID" << endl;
+                                    cout << "2- Borrar por mail" << endl;
+                                    cin >> menubusq;
+                                    if(menubusq == 1)
+                                    {
+                                        cout << "******************************** "<<endl;
+                                        cout << "ID a borrar: ";
+                                        cin >> idborr;
 
+
+                                       cout << "******************************** "<<endl;
+                                    }
+                                    if(menubusq == 2)
+                                    {
+                                        cout << "******************************** "<<endl;
+                                        cout << "Mail buscado: "<<endl;
+                                        cin >> mailborr;
+
+                                        cout << "******************************** "<<endl;
+                                    }
+                                }
+                                fclose(clientes);
+                            }
+        break;
                 break;
 
             case '4':
@@ -160,15 +217,19 @@ int main()
                                     cin >> menubusq;
                                     if(menubusq == 1)
                                     {
+                                        cout << "******************************** "<<endl;
                                         cout << "ID buscado: ";
                                         cin >> idbusq;
                                         mostrarUsuario(usuar[busquedaID(usuar, tam, idbusq)]);
+                                       cout << "******************************** "<<endl;
                                     }
                                     if(menubusq == 2)
                                     {
-                                        cout << "Mail buscado: ";
+                                        cout << "******************************** "<<endl;
+                                        cout << "Mail buscado: "<<endl;
                                         cin >> mailbusq;
                                         mostrarUsuario(usuar[busquedaMail(usuar, tam, mailbusq)]);
+                                        cout << "******************************** "<<endl;
                                     }
                                 }
                                 fclose(clientes);
