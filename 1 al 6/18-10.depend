@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1634758580 source:c:\users\tobic\onedrive\escritorio\utn\algoritmos\proyectos\tp\18-10\main.cpp
+	<iostream>
+	<stdio.h>
+	<conio.h>
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+
