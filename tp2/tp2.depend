@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1634820759 source:c:\users\gustavo\documents\tp2\main.cpp
+	<iostream>
+	<stdio.h>
+	<conio.h>
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+
