@@ -66,7 +66,7 @@ void MostrarCompra(Nodo *lista);
 void InsertarCompraEnLista (NodoCompras *&n, Compra x);
 void InsertarUsuarioEnLista (Nodo *&n, Usuario x);
 void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras);
-
+void MostrarCompraCliente(int id);
 
 void levantarUsuario(Nodo *&lista){
     FILE *f=NULL;
@@ -133,37 +133,24 @@ void mostrarTodosUsuarios(Nodo *lista)
 
 }
 
-void buscar_ID(int id)
+void buscar_ID(int id, Nodo *lista)
 {
-    FILE *f;
-    int encontrado = 0;
-    Usuario u;
-    if(f = fopen("clientes.bin", "rb"))
+    int buscado = 0;
+    Nodo *aux = lista;
+    while(aux)
     {
-        while(fread(&u, sizeof(Usuario), 1, f) && !encontrado)
+        if(id == aux->info.UsuarioID)
         {
-            if(u.UsuarioID == id)
-            {
-                encontrado = 1;
-                cout << "==========================" << endl;
-                cout << "ID: " << u.UsuarioID << endl;
-                cout << "Fecha creacion: " << u.FechaCreacion;
-                cout << "Activo: ";
-                if(u.Activo == true)
-                    cout << "Si" << endl;
-                else
-                    cout << "No" << endl;
-                cout << "Total compras: " << u.TotalImporteCompras << endl;
-                cout << "Correo: " << u.eMail << endl;
-                cout << "==========================" << endl;
+            mostrarUsuario(aux->info);
+            return;
 
-            }
         }
-        fclose(f);
-//        return 1;
+        aux = aux->sgte;
     }
+//        return 1;
     return;
 }
+
 
 Usuario buscar_ID1(int id) // Devuelve el cliente
 {
@@ -185,52 +172,30 @@ Usuario buscar_ID1(int id) // Devuelve el cliente
     return k;
 }
 
-
-int buscar_Mail(char mail[])
+int buscar_Mail(char mail[], Nodo *lista)
 {
-    FILE *f;
-    int encontrado =0;
-    Usuario u;
-    if (f=fopen("clientes.bin","rb"))
+    Nodo *aux = lista;
+    while(aux)
     {
-        while(fread(&u,sizeof(Usuario),1,f) && !encontrado)
-        {
-            if (strcmp(mail, u.eMail)==0)
-            {
-                encontrado = 1;
-                cout << "==========================" << endl;
-                cout << "ID: " << u.UsuarioID << endl;
-                cout << "Fecha creacion: " << u.FechaCreacion;
-                cout << "Activo: ";
-                if(u.Activo == true)
-                    cout << "Si" << endl;
-                else
-                    cout << "No" << endl;
-                cout << "Total compras: " << u.TotalImporteCompras << endl;
-                cout << "Correo: " << u.eMail << endl;
-                cout << "==========================" << endl;
-            }
-        }
-        if (!encontrado)
-            cout << "No se encontro la persona buscada" << endl;
-        fclose(f);
-        return 1;
+        if(strcmp(mail, aux->info.eMail) == 0)
+            mostrarUsuario(aux->info);
+        aux = aux->sgte;
     }
     return 0;
 }
-
 void desactivar_con_ID (Nodo *&listausuario, int id)
 {
-
-
-    while(listausuario){
+    Nodo *aux = NULL;
+    aux=listausuario;
+        while(listausuario){
         if(id==listausuario->info.UsuarioID){
-            listausuario->info.Activo==false;
+            listausuario->info.Activo=false;
+        }
+        listausuario=listausuario->sgte;
+
         }
 
-
-    }
-
+       listausuario=aux;
 }
 
 void borrador()
@@ -464,6 +429,17 @@ void MostrarCompra(NodoCompras *lista)
         lista = lista->sgte;
     }
 }
+void MostrarUnaCompra(Compra c){
+
+        cout << "==========================" << endl;
+        cout << "ID Usuario: " << c.UsuarioID << endl;
+        cout << "ID Compra: " <<c.CompraID<< endl;
+        cout << "Fecha y Hora: " << c.FechaHora << endl;
+        cout << "Monto: " << c.Monto << endl;
+        cout << "Nro. Articulo: " << c.NroArticulo << endl;
+        cout << "==========================" << endl;
+
+}
 
 void InsertarCompraEnLista (NodoCompras *&n, Compra x)
 {
@@ -513,6 +489,7 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
     do{
     cout<<"Ingrese la ruta :"<<endl;
     cin>>ruta;
+    procesados = fopen("procesados.bin","ab");
     f = fopen(ruta, "rb");
 
      if (f != NULL) //pude abrir el archivo
@@ -528,18 +505,18 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
             fclose(procesados);
 
         }
-      else
+        else
         cout << "No se pudo abrir el archivo." << endl;
         cout << "Desea ingresar otro lote de compras(Y/N): ";
         cin >> opcion;
 
 
-}while(opcion == 'Y' || opcion == 'y');
+        }while(opcion == 'Y' || opcion == 'y');
 
 
+    Paux_compra = ListaCompras;
 
-     Paux_compra = ListaCompras;
- while(ListaUsuario){
+    while(ListaUsuario){
      while(Paux_compra){
 
        if(Paux_compra->info.UsuarioID==ListaUsuario->info.UsuarioID){
@@ -553,7 +530,9 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
 
         ListaUsuario = ListaUsuario->sgte;
         Paux_compra = ListaCompras;
+
      }
+
 
  }
 
@@ -576,6 +555,7 @@ void ordenarLista(Nodo *lista)
                     t = aux->info;
                     aux->info = actual->info;
                     actual->info = t;
+                    mostrarUsuario(aux->info);
                }
                aux = aux->sgte;
 
@@ -585,10 +565,38 @@ void ordenarLista(Nodo *lista)
 
      }
 
-     cout<<"\n\n\tLista ordenada..."<<endl;
-     mostrarTodosUsuarios(lista);
+
+
 }
 
+void MostrarCompraCliente(int id){
+
+    FILE *f=NULL;
+    NodoCompras *lista=NULL;
+    Compra c;
+    f=fopen("procesados.bin","rb");
+    if(f!=NULL){
+        while(fread(&c,sizeof(Compra),1,f)){
+            InsertarAlFinalCompras(lista,c);
+        }
+
+    }
+    fclose(f);
+
+    NodoCompras *aux=lista;
+    while(aux){
+
+        if(aux->info.UsuarioID==id){
+            MostrarUnaCompra(aux->info);
+
+        }
+       aux = aux->sgte;
+
+    }
+
+
+
+}
 
 
 
@@ -613,15 +621,15 @@ int main()
         cout << "1 - Levantar clientes del archivo Clientes.bin." << endl;
         //2 bien
         cout << "2 - Cargar un nuevo cliente." << endl;
-        //3 maso, falta
+        //3 bien
         cout << "3 - Desactivar un usuario existente" << endl;
         //4 bien
         cout << "4 - Buscar un cliente por ID o por mail."<< endl;
-        //5 bien, falta tener la condición de q sean solo activos
+        //5 bien
         cout << "5 - Listar todos los clientes activos ordenados por total del importe." <<endl;
         //6, maso falta
         cout << "6 - Procesar un lote de compras." <<endl;
-        //7 hacer
+        //7 Bien
         cout << "7 - Mostrar por pantalla todas las compras realizadas de un cliente dado (desde el archivo procesados.bin)." <<endl;
        // 8 y 9 son las del reporte en html.
         cout << "8 - Mostrar todas las compras realizadas entre dos fechas en un reporte escrito en formato html. También mostrar el total de las compras " <<endl;
@@ -653,7 +661,7 @@ int main()
 
 
                 break;
-            case 4:
+                case 4:
                     cout << "1- Buscar por ID" << endl;
                     cout << "2- Buscar por mail" << endl;
                     cin >> menubusq;
@@ -661,27 +669,29 @@ int main()
                     {
                         cout << "ID buscado: ";
                         cin >> idbusq;
-                        buscar_ID(idbusq);
+                        buscar_ID(idbusq, ListaUsuario);
                     }
                     if(menubusq == 2)
                     {
                         cout << "Mail buscado: ";
                         fflush(stdin);
                         fgets(mailbusq, 50, stdin);
-                        buscar_Mail(mailbusq);
+                        buscar_Mail(mailbusq, ListaUsuario);
                     }
                 break;
 
-             case 5:
+                case 5:
                 ordenarLista(ListaUsuario);
                 break;
 
-              case 6:
+                case 6:
                     ProcesarLoteDeCompras(ListaUsuario, ListaCompras);
                 break;
 
                 case 7:
-
+                        cout << "ID buscado: ";
+                        cin >> idbusq;
+                        MostrarCompraCliente(idbusq);
                 break;
 
                case 8:
