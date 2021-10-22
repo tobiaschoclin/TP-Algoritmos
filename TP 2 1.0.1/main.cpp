@@ -68,6 +68,10 @@ void InsertarUsuarioEnLista (Nodo *&n, Usuario x);
 void ProcesarLoteDeCompras(Nodo *ListaUsuario, NodoCompras *&ListaCompras);
 void MostrarCompraCliente(int id);
 
+
+void escribirReporteHTML(NodoCompras *lista);
+void escribirReporteCSV(NodoCompras *lista);
+
 void levantarUsuario(Nodo *&lista){
     FILE *f=NULL;
     Usuario u;
@@ -414,7 +418,51 @@ void CargarCompra(Compra &c)
     cout << "Numero de articulo: ";
     cin >> c.NroArticulo;
     fflush(stdin);
+
     return;
+}
+void CargarCompraAutomatico(NodoCompras *&lista){
+    //1 de enero
+    lista->info.UsuarioID= 1;
+    lista->info.FechaHora=20210101;
+    lista->info.Monto=300;
+    lista->info.NroArticulo=1;
+    lista->info.CompraID=1;
+
+    lista=lista->sgte;
+    //10 de febrero
+    lista->info.UsuarioID= 2;
+    lista->info.FechaHora=20210210;
+    lista->info.Monto=700;
+    lista->info.NroArticulo=2;
+    lista->info.CompraID=2;
+
+    lista=lista->sgte;
+    //8 de mayo
+    lista->info.UsuarioID= 4;
+    lista->info.FechaHora=20210508;
+    lista->info.Monto=1000;
+    lista->info.NroArticulo=3;
+    lista->info.CompraID=3;
+
+    lista=lista->sgte;
+    //6 de diciembre
+    lista->info.UsuarioID= 6;
+    lista->info.FechaHora=20211206;
+    lista->info.Monto=9000;
+    lista->info.NroArticulo=3;
+    lista->info.CompraID=8;
+
+    lista=lista->sgte;
+    //21 de diciembre
+    lista->info.UsuarioID= 7;
+    lista->info.FechaHora=20211221;
+    lista->info.Monto=777;
+    lista->info.NroArticulo=9;
+    lista->info.CompraID=10;
+
+
+
 }
 
 void MostrarCompra(NodoCompras *lista)
@@ -630,6 +678,56 @@ cargarUsuarioArchivo(Usuario &u){
 
 }
 
+void escribirReporteHTML(NodoCompras *lista, int fecha1, int fecha2){
+    FILE *f;
+    f = fopen("salidahtml.html","w");
+    fprintf(f,"<html><body>\n");
+    fprintf(f,"<h1>Reporte de Compras</h1>\n");
+    fprintf(f,"<table border=1>\n");
+    fprintf(f,"<th>Usuario ID</th><th>Fecha</th><th>Monto</th><th>Numero de articulo</th><th>Compra ID</th>\n");
+
+    while (lista)
+    {
+        while(lista->info.FechaHora >= fecha1 && lista->info.FechaHora <= fecha2){
+
+        fprintf(f,"<tr>\n");
+        fprintf(f,"<td>%d</td><td>%d</td><td>%f</td><td>%d</td><td>%d</td>\n",lista->info.UsuarioID,lista->info.FechaHora,lista->info.Monto,lista->info.NroArticulo,lista->info.CompraID);
+        fprintf(f,"</tr>\n");
+        lista = lista->sgte;
+         }
+    }
+
+
+    fprintf(f, "</table>");
+    fprintf(f, "</body>");
+    fprintf(f, "</html>");
+    fclose(f);
+
+}
+
+void escribirReporteCSV(NodoCompras *lista)
+{
+    //Vamos a escribir un HTML con los datos:
+    FILE *f;
+    f = fopen("salidaexcel.csv", "wt");
+
+    fprintf(f,"Usuario ID;Fecha;Monto;Numero de articulos;Compra ID\n");
+
+
+    while (lista)
+    {
+        fprintf(f,"%d;%d;%f;%d;%d\n",lista->info.UsuarioID,lista->info.FechaHora,lista->info.Monto,lista->info.NroArticulo,lista->info.CompraID);
+        lista = lista->sgte;
+    }
+    fclose(f);
+    return;
+}
+
+
+
+
+
+
 int main()
 {
     FILE *clientes = NULL;
@@ -643,7 +741,7 @@ int main()
     Compra c;
     int pos = 0;
     int tam = 0;
-    int idbusq, menubusq, idborrar;
+    int idbusq, menubusq, idborrar, fecha1, fecha2;
     char mailbusq[50];
     int opcion;
     do
@@ -672,6 +770,7 @@ int main()
         cout << "12 - Cargar lote de compras" << endl;
         cout << "13 - mostrar usuarios" << endl;
         cout << "14 - Cargar nuevos usuarios en el archivo clientes" << endl;
+        cout << "15 - Mostrar lista de compras" << endl;
         cout << "esc - Salir" << endl;
         cin >> opcion;
         switch(opcion)
@@ -727,15 +826,21 @@ int main()
                         MostrarCompraCliente(idbusq);
                 break;
 
-               case 8:
+                case 8:
+                cout << "Fecha de inicio: ";
+                cin >> fecha1;
+                cout << "Fecha final: ";
+                cin >> fecha2;
+                escribirReporteHTML(ListaCompras, fecha1, fecha2);
 
                 break;
 
                  case 9:
-
+                escribirReporteCSV(ListaCompras);
                 break;
 
-                 case 10:
+
+                case 10:
 
                 break;
                  case 12:
@@ -743,6 +848,7 @@ int main()
                     if(compras != NULL)
                     {
                         CargarCompra(c);
+                        InsertarCompraEnLista(ListaCompras,c);
                         fwrite(&c, sizeof(Compra), 1, compras);
                         fclose(compras);
                     }
@@ -756,10 +862,15 @@ int main()
                 if(clientes != NULL)
                 {
                     cargarUsuarioArchivo(u);
+
                     fwrite(&u, sizeof(Usuario), 1, clientes);
                     fclose(clientes);
                 }
 
+                    break;
+
+                 case 15:
+                     MostrarCompra(ListaCompras);
                     break;
         }
 
