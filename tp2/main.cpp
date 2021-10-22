@@ -10,7 +10,7 @@ using namespace std;
 struct Usuario
 {
 int UsuarioID;
-char FechaCreacion[50];
+int FechaCreacion;
 bool Activo;
 float TotalImporteCompras=0;
 char eMail[50];
@@ -20,7 +20,7 @@ bool borrado = false;
 struct Compra
 {
 int CompraID;
-char FechaHora[50];
+int FechaHora;
 float Monto;
 int UsuarioID;
 int NroArticulo;
@@ -65,7 +65,7 @@ void CargarCompra(Compra &c);
 void MostrarCompra(Nodo *lista);
 void InsertarCompraEnLista (NodoCompras *&n, Compra x);
 void InsertarUsuarioEnLista (Nodo *&n, Usuario x);
-void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras);
+void ProcesarLoteDeCompras(Nodo *ListaUsuario, NodoCompras *&ListaCompras);
 void MostrarCompraCliente(int id);
 
 void levantarUsuario(Nodo *&lista){
@@ -91,7 +91,7 @@ void cargarUsuario(Nodo *&lista)
     cin >> u.UsuarioID;
     fflush(stdin);
     cout << "Fecha: ";
-    fgets(u.FechaCreacion, 50, stdin);
+    cin >> u.FechaCreacion;
     fflush(stdin);
     cout << "Activo (1-si / 2-no): ";
     int act;
@@ -112,7 +112,7 @@ void mostrarUsuario(Usuario u)
 {
     cout << "==========================" << endl;
     cout << "ID: " << u.UsuarioID << endl;
-    cout << "Fecha creacion: " << u.FechaCreacion;
+    cout << "Fecha creacion: " << u.FechaCreacion<<endl;
     cout << "Activo: ";
     if(u.Activo == true)
         cout << "Si" << endl;
@@ -403,7 +403,7 @@ void CargarCompra(Compra &c)
     cin >> c.CompraID;
     fflush(stdin);
     cout << "Fecha: ";
-    fgets(c.FechaHora, 50, stdin);
+    cin>>c.FechaHora;
     fflush(stdin);
     cout << "Monto: ";
     cin >> c.Monto;
@@ -421,11 +421,13 @@ void MostrarCompra(NodoCompras *lista)
 {
     while(lista)
     {
+        cout << "==========================" << endl;
+        cout << "ID Usuario: " << lista->info.UsuarioID << endl;
         cout << "ID Compra: " <<lista->info.CompraID<< endl;
         cout << "Fecha y Hora: " << lista->info.FechaHora << endl;
         cout << "Monto: " << lista->info.Monto << endl;
-        cout << "ID Usuario: " << lista->info.UsuarioID << endl << endl;
         cout << "Nro. Articulo: " << lista->info.NroArticulo << endl;
+        cout << "==========================" << endl;
         lista = lista->sgte;
     }
 }
@@ -477,7 +479,7 @@ void InsertarUsuarioEnLista (Nodo *&n, Usuario x)
     return;
 }
 
-void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
+void ProcesarLoteDeCompras(Nodo *ListaUsuario, NodoCompras *&ListaCompras)
 {
 
     char ruta[50];
@@ -485,6 +487,7 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
     Compra compr;
     NodoCompras *Paux_compra;
     FILE *f=NULL;
+    FILE *w=NULL;
     FILE *procesados = NULL;
     do{
     cout<<"Ingrese la ruta :"<<endl;
@@ -517,6 +520,9 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
     Paux_compra = ListaCompras;
 
     while(ListaUsuario){
+
+    ListaUsuario->info.TotalImporteCompras=0;
+
      while(Paux_compra){
 
        if(Paux_compra->info.UsuarioID==ListaUsuario->info.UsuarioID){
@@ -532,6 +538,16 @@ void ProcesarLoteDeCompras(Nodo *&ListaUsuario, NodoCompras *&ListaCompras)
         Paux_compra = ListaCompras;
 
      }
+     char opcion2;
+
+    cout << "Desea mostrar las compras(Y/N): ";
+    cin >> opcion2;
+
+
+    if(opcion2 == 'Y' || opcion2 == 'y'){
+        MostrarCompra(ListaCompras);
+    }
+
 
 
  }
@@ -598,7 +614,27 @@ void MostrarCompraCliente(int id){
 
 }
 
+cargarUsuarioArchivo(Usuario &u){
+ cout << "ID: ";
+    cin >> u.UsuarioID;
+    fflush(stdin);
+    cout << "Fecha: ";
+    cin >>u.FechaCreacion;
+    fflush(stdin);
+    cout << "Activo (1-si / 2-no): ";
+    int act;
+    cin >> act;
+    if(act == 1)
+        u.Activo = true;
+    else
+        u.Activo = false;
+    fflush(stdin);
+    cout << "Correo: ";
+    fgets(u.eMail, 50, stdin);
+    fflush(stdin);
 
+
+}
 
 int main()
 {
@@ -625,20 +661,22 @@ int main()
         cout << "3 - Desactivar un usuario existente" << endl;
         //4 bien
         cout << "4 - Buscar un cliente por ID o por mail."<< endl;
-        //5 bien
+        //5 REVISAR
         cout << "5 - Listar todos los clientes activos ordenados por total del importe." <<endl;
-        //6, maso falta
+        //6, Bien
         cout << "6 - Procesar un lote de compras." <<endl;
         //7 Bien
         cout << "7 - Mostrar por pantalla todas las compras realizadas de un cliente dado (desde el archivo procesados.bin)." <<endl;
-       // 8 y 9 son las del reporte en html.
+
+        // 8 y 9 son las del reporte en html.
         cout << "8 - Mostrar todas las compras realizadas entre dos fechas en un reporte escrito en formato html. También mostrar el total de las compras " <<endl;
         cout << "9 - Mostrar el mismo reporte que el punto 8 en formato CSV " <<endl;
         cout << "10 - Finalizar jornada." <<endl;
         cout << "11 - Cargar datos en Clientes.bin." <<endl;
         cout << "12 - Cargar lote de compras" << endl;
         cout << "13 - mostrar usuarios" << endl;
-
+        cout << "14 - Cargar nuevos usuarios en el archivo clientes" << endl;
+        cout <<" 15 - borrar archivo clientes"<<endl;
         cout << "esc - Salir" << endl;
         cin >> opcion;
         switch(opcion)
@@ -719,6 +757,21 @@ int main()
                  case 13:
                     mostrarTodosUsuarios(ListaUsuario);
                 break;
+                 case 14:
+                clientes = fopen("clientes.bin", "ab");
+                if(clientes != NULL)
+                {
+                                cargarUsuarioArchivo(u);
+                    fwrite(&u, sizeof(Usuario), 1, clientes);
+                    fclose(clientes);
+                }
+
+                    break;
+                 case 15:
+
+
+                    break;
+
         }
 
 
