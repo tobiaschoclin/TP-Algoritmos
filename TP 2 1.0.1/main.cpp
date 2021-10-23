@@ -99,9 +99,9 @@ void cargarUsuario(Nodo *&lista)
     cin >> act;
     if(act == 1)
         u.Activo = true;
-    else
+    else if(act == 2)
         u.Activo = false;
-          fflush(stdin);
+    fflush(stdin);
     cout << "Correo: ";
     fgets(u.eMail, 50, stdin);
     fflush(stdin);
@@ -628,17 +628,20 @@ int main()
                 {
                     while(auxUsuario)
                     {
-                        if(auxUsuario->info.Activo==true){
-                        fwrite(&auxUsuario->info, sizeof(Usuario), 1, clientes);
-
+                        if(auxUsuario->info.Activo == true)
+                        {
+                            fwrite(&auxUsuario->info, sizeof(Usuario), 1, clientes);
+                            auxUsuario = auxUsuario->sgte;
                         }
-                        auxUsuario = auxUsuario -> sgte;
+                        else if(auxUsuario->info.Activo == false)
+                        {
+                            auxUsuario = auxUsuario->sgte;
+                        }
                     }
                     fclose(clientes);
                 }
             break;
             case 10:
-
                 CargarCompra(c);
                 InsertarCompraEnLista(ListaCompras,c);
             break;
